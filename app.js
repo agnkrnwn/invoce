@@ -59,6 +59,24 @@ function initializeApp() {
 
     // Bind event listeners
     bindEvents();
+
+    // Tambahkan di fungsi initializeApp()
+    document.addEventListener('click', function(e) {
+        if (!e.target.classList.contains('color-name') && 
+            !e.target.classList.contains('color-qty')) {
+            // Jika klik di luar input warna/jumlah, hilangkan fokus
+            if (document.activeElement.classList.contains('color-name') || 
+                document.activeElement.classList.contains('color-qty')) {
+                document.activeElement.blur();
+            }
+        }
+    });
+
+}
+
+// Jika perlu membersihkan event listener
+function cleanup() {
+    document.removeEventListener('keydown', handleColorInputEnter);
 }
 
 function bindEvents() {
@@ -78,7 +96,36 @@ function bindEvents() {
     
     // Initial remove color button
     bindRemoveColorButtons();
+
+    // Add Enter key behavior for color inputs
+    document.addEventListener('keydown', handleColorInputEnter);
 }
+
+// Tambahkan fungsi baru untuk menangani Enter
+function handleColorInputEnter(e) {
+    if (e.key === 'Enter') {
+        const activeElement = document.activeElement;
+        
+        // Jika Enter ditekan di input nama warna
+        if (activeElement.classList.contains('color-name')) {
+            e.preventDefault();
+            const qtyInput = activeElement.closest('.color-row').querySelector('.color-qty');
+            qtyInput.focus();
+        } 
+        // Jika Enter ditekan di input jumlah
+        else if (activeElement.classList.contains('color-qty')) {
+            e.preventDefault();
+            // Cek jika input jumlah memiliki nilai
+            if (activeElement.value) {
+                addColorRow();
+                const newRow = document.querySelector('.color-row:last-child');
+                const newNameInput = newRow.querySelector('.color-name');
+                newNameInput.focus();
+            }
+        }
+    }
+}
+
 
 function addColorRow() {
     const container = document.getElementById('colorContainer');
@@ -99,6 +146,10 @@ function addColorRow() {
     `;
     container.appendChild(colorRow);
     bindRemoveColorButtons();
+    
+    // Fokus ke input nama warna di row baru
+    const nameInput = colorRow.querySelector('.color-name');
+    nameInput.focus();
 }
 
 function bindRemoveColorButtons() {
